@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/fs"
+	filepath "path/filepath"
 	regex "regexp"
 )
 
@@ -10,15 +11,15 @@ type Filter interface {
 }
 
 type PathFilter struct {
-	PathRegex regex.Regexp
+	PathRegex *regex.Regexp
 }
 
 func (pf PathFilter) Filter(file fs.DirEntry, basepath string) bool {
-	return pf.PathRegex.MatchString(basepath)
+	return pf.PathRegex.MatchString(filepath.Join(basepath, file.Name()))
 }
 
 type NameFilter struct {
-	NameRegex regex.Regexp
+	NameRegex *regex.Regexp
 }
 
 func (nf NameFilter) Filter(file fs.DirEntry, basepath string) bool {

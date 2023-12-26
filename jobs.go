@@ -14,7 +14,7 @@ type Job interface {
 
 type IterateJob struct {
 	currentDir fs.DirEntry
-	filter     Filter
+	filter     *Filter
 	basepath   string
 }
 
@@ -22,7 +22,7 @@ type EntryJob struct {
 	wg       *sync.WaitGroup
 	file     fs.DirEntry
 	basepath string
-	filter   Filter
+	filter   *Filter
 }
 
 func (eg EntryJob) run() {
@@ -41,8 +41,7 @@ func (eg EntryJob) run() {
 
 	}
 	// Filter the message here
-	if eg.filter.Filter(eg.file, eg.basepath) {
-		// ...
+	if (*eg.filter).Filter(eg.file, eg.basepath) {
 		fmt.Println(filepath.Join(eg.basepath, eg.file.Name()))
 	}
 	return
@@ -52,7 +51,7 @@ func (ij IterateJob) run() {
 	// Create a new job for each file
 	files, err := getFilesInDirectory(ij.basepath)
 	if err != nil {
-		fmt.Println("Error getting files in directory", ij.basepath)
+		fmt.Fprintln(os.Stderr, "gofind:", err)
 		return
 	}
 
